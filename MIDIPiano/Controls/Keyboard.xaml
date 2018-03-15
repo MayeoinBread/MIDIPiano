@@ -1,0 +1,27 @@
+﻿<UserControl
+    x:Class="MIDIPiano.Controls.Keyboard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MIDIPiano.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="200"
+    d:DesignWidth="3080">
+
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <local:Octave x:Name="o_0" OctaveInt="0" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_1" OctaveInt="1" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_2" OctaveInt="2" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_3" OctaveInt="3" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_4" OctaveInt="4" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_5" OctaveInt="5" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_6" OctaveInt="6" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_7" OctaveInt="7" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_8" OctaveInt="8" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_9" OctaveInt="9" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+            <local:Octave x:Name="o_10" OctaveInt="10" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

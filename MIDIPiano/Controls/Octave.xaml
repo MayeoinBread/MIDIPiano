@@ -1,0 +1,32 @@
+﻿<UserControl
+    x:Class="MIDIPiano.Controls.Octave"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MIDIPiano.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="200"
+    d:DesignWidth="280"
+    Width="280"
+    Height="200">
+
+    <Grid>
+        <StackPanel Orientation="Horizontal" x:Name="WhiteKeys">
+            <local:WhiteKey x:Name="k_0" KeyPitch="0" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_2" KeyPitch="2" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_4" KeyPitch="4" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_5" KeyPitch="5" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_7" KeyPitch="7" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_9" KeyPitch="9" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:WhiteKey x:Name="k_11" KeyPitch="11" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" x:Name="BlackKeys">
+            <local:BlackKey x:Name="k_1" Margin="30,0,0,0" KeyPitch="1" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:BlackKey x:Name="k_3" Margin="20,0,0,0" KeyPitch="3" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:BlackKey x:Name="k_6" Margin="60,0,0,0" KeyPitch="6" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:BlackKey x:Name="k_8" Margin="20,0,0,0" KeyPitch="8" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+            <local:BlackKey x:Name="k_10" Margin="20,0,0,0" KeyPitch="10" KeyTapped="K_KeyTapped" KeyReleased="K_KeyReleased"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
