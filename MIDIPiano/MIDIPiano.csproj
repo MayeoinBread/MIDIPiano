@@ -108,6 +108,7 @@
     <Compile Include="Controls\WhiteKey.xaml.cs">
       <DependentUpon>WhiteKey.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Enums.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

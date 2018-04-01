@@ -6,10 +6,29 @@ using Windows.UI.Xaml.Input;
 
 using Windows.Devices.Enumeration;
 using Windows.Devices.Midi;
-using System.Threading.Tasks;
+using Windows.UI.Xaml.Data;
 
 namespace MIDIPiano
 {
+    public class PanThumbConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            int temp = int.Parse(value.ToString());
+
+            if (temp == 64)
+                return "0";
+            else if (temp < 64)
+                return "-" + (100 - (100 * temp / 64)) + "%";
+            else
+                return (100 * (temp - 63) / 64) + "%";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public sealed partial class PianoPage : Page
     {
         MidiDeviceWatcher inputDeviceWatcher;
@@ -19,11 +38,16 @@ namespace MIDIPiano
         private MidiInPort midiInPort;
         private IMidiOutPort midiOutPort;
 
+        private KeyWidth currentWidth = KeyWidth.Normal;
+
         // Default value for PitchBend slider, half of its range
         private ushort PitchBendDefault = 8192;
 
         // Bool to let us know if there's an input MIDI device selected
         private bool hasMidiInputSelected = false;
+
+        // Bool to let us know if ScrollView scrolling is locked/unlocked
+        private bool ScrollViewScrollLocked = true;
 
         public PianoPage()
         {
@@ -32,10 +56,10 @@ namespace MIDIPiano
             // Setup our device watchers for input and output MIDI devices.
             // Let's us know if devices are connected/disconnected while we're running
             // (And hopefully catches these gracefully so that we don't crash!)
-            inputDeviceWatcher = new MidiDeviceWatcher(MidiInPort.GetDeviceSelector(), midiInPortListBox, Dispatcher);
+            inputDeviceWatcher = new MidiDeviceWatcher(MidiInPort.GetDeviceSelector(), midiInPortComboBox, Dispatcher);
             inputDeviceWatcher.StartWatcher();
 
-            outputDeviceWatcher = new MidiDeviceWatcher(MidiOutPort.GetDeviceSelector(), midiOutPortListBox, Dispatcher);
+            outputDeviceWatcher = new MidiDeviceWatcher(MidiOutPort.GetDeviceSelector(), midiOutPortComboBox, Dispatcher);
             outputDeviceWatcher.StartWatcher();
 
             // Helper class to take care of MIDI Control messages, set it up here with the sliders
@@ -56,13 +80,29 @@ namespace MIDIPiano
         private void PianoPage_Loaded(object sender, RoutedEventArgs e)
         {
             // When the page is loaded, we can scroll the keyboard to put Middle-C in view
-            SV_Keyboard.ChangeView(800, null, null, true);
+            ScrollKeyboard();
         }
 
         // Button which scrolls to Middle-C, for testing purposes ;)
         private void BtnScroll_Click(object sender, RoutedEventArgs e)
         {
-            SV_Keyboard.ChangeView(800, null, null, false);
+            ScrollKeyboard();
+        }
+
+        private void ScrollKeyboard()
+        {
+            switch (KB.ThisKeyWidth)
+            {
+                case KeyWidth.Narrow:
+                    SV_Keyboard.ChangeView(400, null, null, false);
+                    break;
+                case KeyWidth.Normal:
+                    SV_Keyboard.ChangeView(800, null, null, false);
+                    break;
+                case KeyWidth.Touch:
+                    SV_Keyboard.ChangeView(2200, null, null, false);
+                    break;
+            }
         }
 
         /// <summary>
@@ -72,8 +112,8 @@ namespace MIDIPiano
         /// <param name="e"></param>
         private void KB_K_KeyTapped(object sender, RoutedEventArgs e)
         {
-            // If we weren't sent a valid Key, or there's no output device selected, do nothing
-            if (sender == null || midiOutPort == null)
+            // If we weren't sent a valid Key, or there's no output device selected, or we're scrolling, do nothing
+            if (sender == null || midiOutPort == null || ScrollViewScrollLocked == false)
                 return;
 
             // Key colour change on press handled by actual key
@@ -86,8 +126,8 @@ namespace MIDIPiano
         /// <param name="sender">MidiNoteOffMessage containing MIDI Note of selected key</param>
         private void KB_K_KeyReleased(object sender, RoutedEventArgs e)
         {
-            // Again, no valid Key or no output means we do nothing
-            if (sender == null || midiOutPort == null)
+            // Again, no valid Key, no output or scrolling means we do nothing
+            if (sender == null || midiOutPort == null || ScrollViewScrollLocked == false)
                 return;
 
             // Key colour change on release handled by actual key
@@ -127,50 +167,6 @@ namespace MIDIPiano
             }
         }
 
-        // Not sure this is ever used
-        private async Task EnumerateMidiInputDevices()
-        {
-            string midiInputQueryString = MidiInPort.GetDeviceSelector();
-            DeviceInformationCollection midiInputDevices = await DeviceInformation.FindAllAsync(midiInputQueryString);
-
-            midiInPortListBox.Items.Clear();
-
-            if(midiInputDevices.Count == 0)
-            {
-                this.midiInPortListBox.Items.Add("No MIDI input devices found!");
-                this.midiInPortListBox.IsEnabled = false;
-                return;
-            }
-
-            foreach (DeviceInformation deviceInfo in midiInputDevices)
-            {
-                this.midiInPortListBox.Items.Add(deviceInfo.Name);
-                this.midiInPortListBox.IsEnabled = true;
-            }
-        }
-        
-        // Not sure this is ever used
-        private async Task EnumerateMidiOutputDevices()
-        {
-            string midiOutportQueryString = MidiOutPort.GetDeviceSelector();
-            DeviceInformationCollection midiOutputDevices = await DeviceInformation.FindAllAsync(midiOutportQueryString);
-
-            midiOutPortListBox.Items.Clear();
-
-            if(midiOutputDevices.Count == 0)
-            {
-                this.midiOutPortListBox.Items.Add("No MIDI output devices found!");
-                this.midiOutPortListBox.IsEnabled = false;
-                return;
-            }
-
-            foreach (DeviceInformation deviceInfo in midiOutputDevices)
-            {
-                this.midiOutPortListBox.Items.Add(deviceInfo.Name);
-                this.midiOutPortListBox.IsEnabled = true;
-            }
-        }
-
         // Update Sliders & Buttons, disable when MIDI input device is connected
         // (May be unnecessary, but helps confusion as physical controllers don't necessarily update by themselves when values changed programmatically)
         private void UpdateUserInputs(bool areActive = true)
@@ -187,12 +183,12 @@ namespace MIDIPiano
         }
 
         // Handler for SelectionChanged on MIDI Input ListBox
-        private async void MidiInPortListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void MidiInPortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var deviceInformationCollection = inputDeviceWatcher.DeviceInformationCollection;
 
             // If we have selected a device, disable Sliders & Buttons
-            if (midiInPortListBox.SelectedIndex > -1)
+            if (midiInPortComboBox.SelectedIndex > -1)
                 UpdateUserInputs(false);
             else
             {
@@ -203,14 +199,14 @@ namespace MIDIPiano
             if (deviceInformationCollection == null)
                 return;
 
-            DeviceInformation devInfo = deviceInformationCollection[midiInPortListBox.SelectedIndex];
+            DeviceInformation devInfo = deviceInformationCollection[midiInPortComboBox.SelectedIndex];
 
             if (devInfo == null)
                 return;
 
             midiInPort = await MidiInPort.FromIdAsync(devInfo.Id);
 
-            if(midiInPort == null)
+            if (midiInPort == null)
             {
                 System.Diagnostics.Debug.WriteLine("Unable to create MidiInPort from input device");
                 return;
@@ -231,8 +227,8 @@ namespace MIDIPiano
                 midiOutPort.SendMessage(receivedMidiMessage);
         }
 
-        // Handler for SelectionChanged on MIDI Output ListBox
-        private async void MidiOutPortListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        // Handler for SelectionChanged on MIDI Output ComboBox
+        private async void MidiOutPortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var deviceInformationCollection = outputDeviceWatcher.DeviceInformationCollection;
 
@@ -240,17 +236,17 @@ namespace MIDIPiano
                 return;
 
             DeviceInformation devInfo;
-            if(midiOutPortListBox.SelectedIndex < 0)
+            if (midiOutPortComboBox.SelectedIndex < 0)
                 devInfo = null;
             else
-                devInfo = deviceInformationCollection[midiOutPortListBox.SelectedIndex];
+                devInfo = deviceInformationCollection[midiOutPortComboBox.SelectedIndex];
 
             if (devInfo == null)
                 return;
 
             midiOutPort = await MidiOutPort.FromIdAsync(devInfo.Id);
 
-            if(midiOutPort == null)
+            if (midiOutPort == null)
             {
                 System.Diagnostics.Debug.WriteLine("Unable to create MidiOutPort from output device");
                 return;
@@ -341,7 +337,32 @@ namespace MIDIPiano
                 midiInPort = null;
             }catch{}
 
-            midiInPortListBox.SelectedIndex = -1;
+            midiInPortComboBox.SelectedIndex = -1;
+        }
+
+        private void BtnLockScroll_Click(object sender, RoutedEventArgs e)
+        {
+            ScrollViewScrollLocked = !ScrollViewScrollLocked;
+            BtnLockScroll.Content = ScrollViewScrollLocked ? "Un-Lock" : "Lock";
+            SV_Keyboard.HorizontalScrollMode = ScrollViewScrollLocked ? ScrollMode.Disabled : ScrollMode.Enabled;
+        }
+
+        private void BtnKeyWidth_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentWidth == KeyWidth.Narrow)
+                currentWidth = KeyWidth.Normal;
+            else if (currentWidth == KeyWidth.Normal)
+                currentWidth = KeyWidth.Touch;
+            else if (currentWidth == KeyWidth.Touch)
+                currentWidth = KeyWidth.Narrow;
+
+            KB.UpdateKeyWidth(currentWidth);
+            ScrollKeyboard();
+        }
+
+        private void AppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }
     }
 }

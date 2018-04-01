@@ -10,7 +10,7 @@
     d:DesignWidth="3080">
 
     <Grid>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel x:Name="OctavePanel" Orientation="Horizontal">
             <local:Octave x:Name="o_0" OctaveInt="0" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
             <local:Octave x:Name="o_1" OctaveInt="1" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>
             <local:Octave x:Name="o_2" OctaveInt="2" O_KeyTapped="O_KeyTapped" O_KeyReleased="O_KeyReleased"/>

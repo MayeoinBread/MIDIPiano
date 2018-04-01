@@ -5,4 +5,10 @@
     xmlns:local="using:MIDIPiano"
     RequestedTheme="Light">
 
+    <Application.Resources>
+        <!--<SolidColorBrush x:Key="Ebony" Color="#555D50"/>-->
+        <SolidColorBrush x:Key="Ebony" Color="#000000"/>
+        <SolidColorBrush x:Key="Ivory" Color="#FFFFF0"/>
+    </Application.Resources>
+
 </Application>

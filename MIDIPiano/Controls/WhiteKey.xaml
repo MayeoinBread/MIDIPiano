@@ -8,11 +8,10 @@
     mc:Ignorable="d"
     d:DesignHeight="200"
     d:DesignWidth="40"
-    Width="40" Height="200"
     VerticalAlignment="Top">
 
     <Grid x:Name="WKey"
-          Background="White" BorderBrush="Black" BorderThickness="1" CornerRadius="4"
+          Background="{StaticResource Ivory}" BorderBrush="Black" BorderThickness="1" CornerRadius="4"
           PointerPressed="WKey_PointerPressed" PointerReleased="WKey_PointerReleased"
           PointerCanceled="WKey_PointerReleased" PointerCaptureLost="WKey_PointerReleased"
           PointerEntered="WKey_PointerEntered" PointerExited="WKey_PointerReleased"/>

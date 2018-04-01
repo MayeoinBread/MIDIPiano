@@ -14,6 +14,8 @@ namespace MIDIPiano.Controls
         public event RoutedEventHandler KeyTapped;
         public event RoutedEventHandler KeyReleased;
 
+        private double marginMultiplier = 1.0;
+
         // DependencyProperty to set the KeyPitch (0-11 ie. 1 Octave)
         // DependencyProperty allows this to be set in XAML (see "Octave.xaml")
         public int KeyPitch
@@ -23,6 +25,30 @@ namespace MIDIPiano.Controls
         }
         public static readonly DependencyProperty KeyPitchProperty =
             DependencyProperty.Register("KeyPitch", typeof(int), typeof(BlackKey), new PropertyMetadata(0));
+
+        // DependencyProperty to set Width of keys
+        public KeyWidth mKeyWidth
+        {
+            get { return (KeyWidth)GetValue(mKeyWidthProperty); }
+            set { SetValue(mKeyWidthProperty, value); SetKeyWidth(); }
+        }
+        public static readonly DependencyProperty mKeyWidthProperty =
+            DependencyProperty.Register("mKeyWidth", typeof(KeyWidth), typeof(BlackKey), new PropertyMetadata(KeyWidth.Normal));
+
+        // DependencyProperty to set left Margin of black keys
+
+
+        public KeyMargin mKeyMargin
+        {
+            get { return (KeyMargin)GetValue(mKeyMarginProperty); }
+            set { SetValue(mKeyMarginProperty, value); SetKeyMargin(); }
+        }
+
+        // Using a DependencyProperty as the backing store for margin.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty mKeyMarginProperty =
+            DependencyProperty.Register("mKeyMargin", typeof(KeyMargin), typeof(BlackKey), new PropertyMetadata(KeyMargin.Half));
+
+
 
         public BlackKey()
         {
@@ -39,7 +65,7 @@ namespace MIDIPiano.Controls
         // If key is released on MIDI controller, this function is called to reset the key colour
         public void DepressKey()
         {
-            BKey.Background = new SolidColorBrush(Colors.Black);
+            BKey.Background = Application.Current.Resources["Ebony"] as SolidColorBrush;
         }
 
         // If key is tapped/clicked through the app, call the KeyTapped event so that the NoteOn is sent to the MIDI output
@@ -73,6 +99,46 @@ namespace MIDIPiano.Controls
                 KeyTapped?.Invoke(KeyPitch, null);
                 e.Handled = true;
                 PressKey();
+            }
+        }
+
+        private void SetKeyWidth()
+        {
+            switch (mKeyWidth)
+            {
+                case KeyWidth.Narrow:
+                    BKey.Width = 10;
+                    BKey.Height = 65;
+                    marginMultiplier = 0.5;
+                    break;
+                case KeyWidth.Touch:
+                    BKey.Width = 40;
+                    BKey.Height = 260;
+                    marginMultiplier = 2.0;
+                    break;
+                default:
+                    BKey.Width = 20;
+                    BKey.Height = 130;
+                    marginMultiplier = 1.0;
+                    break;
+            }
+
+            SetKeyMargin();
+        }
+
+        private void SetKeyMargin()
+        {
+            switch (mKeyMargin)
+            {
+                case KeyMargin.Full:
+                    Margin = new Thickness(30 * marginMultiplier, 0, 0, 0);
+                    break;
+                case KeyMargin.Double:
+                    Margin = new Thickness(60 * marginMultiplier, 0, 0, 0);
+                    break;
+                default:
+                    Margin = new Thickness(20 * marginMultiplier, 0, 0, 0);
+                    break;
             }
         }
     }

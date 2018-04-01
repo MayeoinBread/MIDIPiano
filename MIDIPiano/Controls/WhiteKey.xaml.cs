@@ -24,6 +24,16 @@ namespace MIDIPiano.Controls
         public static readonly DependencyProperty KeyPitchProperty =
             DependencyProperty.Register("KeyPitch", typeof(int), typeof(WhiteKey), new PropertyMetadata(0));
 
+        // Dependency property to set Width of keys
+        public KeyWidth mKeyWidth
+        {
+            get { return (KeyWidth)GetValue(KeyWidthProperty); }
+            set { SetValue(KeyWidthProperty, value); SetKeyWidth(); }
+        }
+        public static readonly DependencyProperty KeyWidthProperty =
+            DependencyProperty.Register("mKeyWidth", typeof(KeyWidth), typeof(WhiteKey), new PropertyMetadata(KeyWidth.Normal));
+
+
         private bool isMiddleC = false;
 
         public WhiteKey()
@@ -49,7 +59,7 @@ namespace MIDIPiano.Controls
         // If key is released on MIDI controller, this function is called to reset the key colour
         public void DepressKey()
         {
-            WKey.Background = isMiddleC ? new SolidColorBrush(Colors.Gray) : new SolidColorBrush(Colors.White);
+            WKey.Background = isMiddleC ? new SolidColorBrush(Colors.Gray) : Application.Current.Resources["Ivory"] as SolidColorBrush;
         }
 
         // If key is tapped/clicked through the app, call the KeyTapped event so that the NoteOn is sent to the MIDI output
@@ -83,6 +93,25 @@ namespace MIDIPiano.Controls
                 KeyTapped?.Invoke(KeyPitch, null);
                 e.Handled = true;
                 PressKey();
+            }
+        }
+
+        private void SetKeyWidth()
+        {
+            switch (mKeyWidth)
+            {
+                case KeyWidth.Narrow:
+                    WKey.Width = 20;
+                    WKey.Height = 100;
+                    break;
+                case KeyWidth.Touch:
+                    WKey.Width = 80;
+                    WKey.Height = 400;
+                    break;
+                default:
+                    WKey.Width = 40;
+                    WKey.Height = 200;
+                    break;
             }
         }
     }

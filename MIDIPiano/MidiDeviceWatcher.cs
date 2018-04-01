@@ -15,14 +15,14 @@ namespace MIDIPiano
 
         DeviceWatcher deviceWatcher;
         string deviceSelectorString;
-        ListBox deviceListBox;
+        ComboBox deviceComboBox;
         CoreDispatcher coreDispatcher;
 
         public DeviceInformationCollection DeviceInformationCollection { get; set; }
 
-        public MidiDeviceWatcher(string midiDeviceSelectorString, ListBox midiDeviceListBox, CoreDispatcher dispatcher)
+        public MidiDeviceWatcher(string midiDeviceSelectorString, ComboBox midiDeviceComboBox, CoreDispatcher dispatcher)
         {
-            deviceListBox = midiDeviceListBox;
+            deviceComboBox = midiDeviceComboBox;
             coreDispatcher = dispatcher;
 
             deviceSelectorString = midiDeviceSelectorString;
@@ -74,17 +74,23 @@ namespace MIDIPiano
         {
             this.DeviceInformationCollection = await DeviceInformation.FindAllAsync(deviceSelectorString);
 
-            deviceListBox.Items.Clear();
+            deviceComboBox.Items.Clear();
 
             if (!this.DeviceInformationCollection.Any())
             {
-                deviceListBox.Items.Add("No MIDI devices found!");
+                deviceComboBox.Items.Add("No MIDI devices found!");
+                deviceComboBox.IsEnabled = false;
             }
+            else
+                deviceComboBox.IsEnabled = true;
 
             foreach (var deviceInformation in this.DeviceInformationCollection)
             {
-                deviceListBox.Items.Add(deviceInformation.Name);
+                deviceComboBox.Items.Add(deviceInformation.Name);
             }
+
+            if (deviceComboBox.IsEnabled && deviceComboBox.Items.Count > 0)
+                deviceComboBox.SelectedIndex = 0;
         }
 
         public void StartWatcher()

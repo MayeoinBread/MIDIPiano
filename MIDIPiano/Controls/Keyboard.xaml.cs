@@ -11,11 +11,22 @@ namespace MIDIPiano.Controls
         public event RoutedEventHandler K_KeyTapped;
         public event RoutedEventHandler K_KeyReleased;
 
+        public KeyWidth ThisKeyWidth = KeyWidth.Normal;
+
         public Keyboard()
         {
             this.InitializeComponent();
             // Set MiddleC key in o_5 Octave
             o_5.SetMiddleC();
+        }
+
+        public void UpdateKeyWidth(KeyWidth newWidth)
+        {
+            ThisKeyWidth = newWidth;
+            foreach (Octave octave in OctavePanel.Children)
+            {
+                octave.UpdateKeyWidth(newWidth);
+            }
         }
 
         // If a key is pressed/released on the MIDI controller, the chain starts here to pass the note to the relevant Octave and Key so that the colour is changed in the app

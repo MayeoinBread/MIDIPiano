@@ -66,24 +66,44 @@ namespace MIDIPiano.Controls
             }
         }
 
+        public void UpdateKeyWidth(KeyWidth newWidth)
+        {
+            foreach (WhiteKey wKey in WhiteKeys.Children)
+            {
+                wKey.mKeyWidth = newWidth;
+            }
+
+            foreach (BlackKey bKey in BlackKeys.Children)
+            {
+                bKey.mKeyWidth = newWidth;
+            }
+        }
+
         // KeyTapped event to handle creation of MidiNoteOnMessages
         private void K_KeyTapped(object sender, RoutedEventArgs e)
         {
             // Use the OctaveInt to set the note to the correct pitch
             // (Number of octaves * 12 notes in an octave + note of current octave)
-            byte note = (byte)(OctaveInt * 12 + (int)sender);
-            // Set channel to 0 (default), note to calculated value, and velocity to 100
-            MidiNoteOnMessage msg = new MidiNoteOnMessage(0, note, 100);
-            // Then send MidiNoteOnMessage as object/sender of event
-            O_KeyTapped?.Invoke(msg, null);
+            int note = OctaveInt * 12 + (int)sender;
+            // Check that note lies within expected values (0-127, app crashes if not)
+            if(note >-1 && note < 128)
+            {
+                // Set channel to 0 (default), note to calculated value, and velocity to 100
+                MidiNoteOnMessage msg = new MidiNoteOnMessage(0, (byte)note, 100);
+                // Then send MidiNoteOnMessage as object/sender of event
+                O_KeyTapped?.Invoke(msg, null);
+            }
         }
 
         private void K_KeyReleased(object sender, RoutedEventArgs e)
         {
             // Same as K_KeyTapped but with MidiNoteOffMessage
-            byte note = (byte)(OctaveInt * 12 + (int)sender);
-            MidiNoteOffMessage msgO = new MidiNoteOffMessage(0, note, 100);
-            O_KeyReleased?.Invoke(msgO, null);
+            int note = OctaveInt * 12 + (int)sender;
+            if(note > -1 && note < 128)
+            {
+                MidiNoteOffMessage msgO = new MidiNoteOffMessage(0, (byte)note, 100);
+                O_KeyReleased?.Invoke(msgO, null);
+            }
         }
     }
 }

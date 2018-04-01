@@ -8,6 +8,10 @@
     xmlns:controls="using:MIDIPiano.Controls"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <local:PanThumbConverter x:Key="PanThumbConv"/>
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -20,31 +24,53 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <TextBlock Text="MIDI Input Device:" Margin="16,8,0,8"/>
-            <TextBlock Text="MIDI Output Device:" Grid.Column="2" VerticalAlignment="Top" Margin="16,8,0,8"/>
-            <ListBox x:Name="midiInPortListBox" Grid.Row="1" SelectionChanged="MidiInPortListBox_SelectionChanged" Height="160" BorderBrush="Red" Margin="16,0,0,0" BorderThickness="2"/>
-            <ListBox x:Name="midiOutPortListBox" Grid.Row="1" Grid.Column="2" SelectionChanged="MidiOutPortListBox_SelectionChanged" Height="160" BorderBrush="Red" Margin="0,0,16,0" BorderThickness="2"/>
 
-            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="16">
-                <Slider x:Name="SliderPitch" Header="Pitch Bend" Orientation="Vertical" Height="200" Minimum="0" Maximum="16383" Value="8192" ValueChanged="Slider_ValueChanged" PointerCaptureLost="SliderPitch_PointerCaptureLost"/>
-                <Slider x:Name="SliderMod" Header="Modulation" Orientation="Vertical" Height="200" Minimum="0" Maximum="127" Margin="16,0,0,0" ValueChanged="Slider_ValueChanged"/>
+            <CommandBar Background="{StaticResource SystemControlHighlightAccentBrush}" x:Name="CmndBar" Grid.Row="0" Grid.ColumnSpan="3" Height="48">
+                <AppBarButton Icon="Setting" Label="Setup" Click="AppBarButton_Click">
+                    <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                            <StackPanel Width="250">
+                                <ComboBox x:Name="midiInPortComboBox" Header="MIDI Input Device" SelectionChanged="MidiInPortComboBox_SelectionChanged"/>
+                                <Button x:Name="BtnDisconnectInput" Content="Disconnect from Input Device" Margin="0,8" Click="BtnDisconnectInput_Click"/>
+                                <ComboBox x:Name="midiOutPortComboBox" Header="MIDI Output Device" SelectionChanged="MidiOutPortComboBox_SelectionChanged"/>
+                            </StackPanel>
+                        </Flyout>
+                    </FlyoutBase.AttachedFlyout>
+                </AppBarButton>
+            </CommandBar>
+           
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" Grid.RowSpan="2" HorizontalAlignment="Center" Margin="16">
+                <Slider x:Name="SliderPitch" Header="Pitch Bend" Orientation="Vertical" Height="200" Minimum="0" Maximum="16383" Value="8192" ValueChanged="Slider_ValueChanged" PointerCaptureLost="SliderPitch_PointerCaptureLost" IsThumbToolTipEnabled="False"/>
+                <Slider x:Name="SliderMod" Header="Modulation" Orientation="Vertical" Height="200" Minimum="0" Maximum="127" Margin="16,0,0,0" ValueChanged="Slider_ValueChanged" IsThumbToolTipEnabled="False"/>
             </StackPanel>
 
-            <Button x:Name="BtnDisconnectInput" Content="Disconnect from Input Device" Grid.Row="2" HorizontalAlignment="Center" Click="BtnDisconnectInput_Click"/>
-            <Slider x:Name="SliderVolume" Header="Volume" Grid.Row="2" Grid.Column="2" Width="200" Minimum="0" Maximum="127" Value="100" Margin="16" HorizontalAlignment="Center" ValueChanged="Slider_ValueChanged"/>
-            <Slider x:Name="SliderPan" Header="Pan" Grid.Row="2" Grid.Column="1" Width="200" Minimum="0" Maximum="127" Value="64" ValueChanged="Slider_ValueChanged"/>
+            <Slider x:Name="SliderVolume" Header="Volume" Grid.Row="1" Grid.Column="1" Width="200" Minimum="0" Maximum="127" Value="100" Margin="16" HorizontalAlignment="Center" ValueChanged="Slider_ValueChanged"/>
+            <Slider x:Name="SliderPan" Header="Pan" Grid.Row="1" Grid.Column="1" Width="200" Minimum="0" Maximum="127" Value="64" Margin="16,80,16,16" ValueChanged="Slider_ValueChanged" ThumbToolTipValueConverter="{StaticResource PanThumbConv}"/>
             <Button x:Name="BtnPanL" Content="L" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" Click="BtnPan_Click"/>
             <Button x:Name="BtnPanC" Content="C" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Center" Click="BtnPan_Click"/>
             <Button x:Name="BtnPanR" Content="R" Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="BtnPan_Click"/>
-        </Grid>
-        <Button x:Name="BtnScroll" Content="Scroll" Click="BtnScroll_Click" Margin="16" VerticalAlignment="Bottom"/>
-        
-        <ScrollViewer x:Name="SV_Keyboard" VerticalAlignment="Center"
-                      ZoomMode="Disabled"
-                      VerticalScrollMode="Disabled" HorizontalScrollMode="Enabled"
+
+            <!--<Rectangle Grid.Row="3" Grid.ColumnSpan="3" Width="200" Height="200"/>-->
+
+            <Button x:Name="BtnLockScroll" Grid.Row="4"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Content="Un-Lock" Click="BtnLockScroll_Click"/>
+
+            <ScrollViewer Grid.Row="4" Grid.ColumnSpan="3" x:Name="SV_Keyboard" VerticalAlignment="Center"
+                      Margin="0,40,0,16" ZoomMode="Disabled"
+                      VerticalScrollMode="Disabled" HorizontalScrollMode="Disabled"
                       HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
-            <controls:Keyboard x:Name="KB"/>
-        </ScrollViewer>
+                <controls:Keyboard x:Name="KB"/>
+            </ScrollViewer>
+        </Grid>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="16">
+            <Button x:Name="BtnScroll"
+                Content="Scroll" Click="BtnScroll_Click" />
+
+            <Button x:Name="BtnToggleSize" Margin="16,0,0,0"
+                    Content="Size" Click="BtnKeyWidth_Click" />
+        </StackPanel>
     </Grid>
 </Page>
